@@ -20,7 +20,7 @@ Create a lambda function and set up 4 gateway for the method
 for the route /view, /get, /put zip and upload the server code.
 
 ### Built With
-AWS Lambda
-AWS S3
-AWS DynamoDB
-Python
+- AWS Lambda
+- AWS S3
+- AWS DynamoDB
+- Python
