@@ -1,5 +1,3 @@
-# import fastapi
-
 # Main CLI program
 import base64
 import requests
@@ -21,8 +19,12 @@ def main():
                         username password, put filename, get filename, view, or logout).
     If you want to quit the program just type quit.
     == == == == == == == == == == == == == == == == == == == == == == == == == == ==""")
+    
+    # User login status
     login = False
     username = ""
+
+    # Login loop
     while (1):
         command = input(">>")
         if(len(command.strip()) == 0):
@@ -52,6 +54,8 @@ def main():
         else:
             print("Please login first")
 
+
+    # Command loop
     if(login):
         while (1):
             command = input(">>")
@@ -79,6 +83,12 @@ def main():
     print("== == == == == == == == == == == == Bye! == == == == == == == == == == == == ==")
 
 def view(username):
+    """View files on server
+
+    param: username: username of user
+
+    return: None
+    """
 
     # Handle sent request
     headers = {"content-type": "text/plain"}
@@ -104,6 +114,13 @@ def view(username):
 #===============================================================================
 
 def put(fileName, username):
+    """Put file on server
+    
+    param: fileName: name of file to put
+    param: username: username of user
+    
+    return: None
+    """
 
     # Handle sent request
     fileExists = os.path.exists(fileName)
@@ -134,6 +151,13 @@ def put(fileName, username):
 #===============================================================================
 
 def get(fileName, username):
+    """Get file from server
+    
+    param: fileName: name of file to get
+    param: username: username of user
+
+    return: None
+    """
 
     # Handle sent request
     headers = {"content-type": "text/plain"}

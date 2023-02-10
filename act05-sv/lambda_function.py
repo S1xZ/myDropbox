@@ -4,8 +4,6 @@ import os
 import base64
 import io
 
-
-
 def lambda_handler(event, context):
     body = json.loads(event["body"])
     # Initialize the result
@@ -44,6 +42,7 @@ def lambda_handler(event, context):
         "body": json.dumps({"result": str(result)})
     }
 
+# ==============================================================================
 
 def list_s3_files_with_prefix(prefix):
     """List all files in an S3 bucket with the given prefix
@@ -88,7 +87,6 @@ def upload_file(fileData, fileName, username):
 
     
     data = base64.b64decode(fileData + '====')
-    # file = open(data, 'rb')
 
     try:
         # Upload the file
@@ -111,10 +109,9 @@ def download_from_s3(file_name, username):
     :return: True if file was downloaded, else False
 
     """
-
+    
     # Create an S3 client
     s3 = boto3.client("s3")
-    
     
     try:
         # Download the file
