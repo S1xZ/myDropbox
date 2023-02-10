@@ -1,4 +1,4 @@
-#myDropbox
+# myDropbox
 A simple file sharing application with authentication
 
 ### Getting Started
