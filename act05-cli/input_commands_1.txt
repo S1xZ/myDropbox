@@ -1,0 +1,8 @@
+newuser another_user password password
+newuser john youshallnotpass youshallnotpass
+login john youshallnotpass
+put sample.txt
+view
+share sample.txt another_user
+logout
+quit

@@ -11,6 +11,9 @@ API_ENDPOINT = os.getenv("API_ENDPOINT")
 GET_URL = API_ENDPOINT + "/get"
 VIEW_URL = API_ENDPOINT + "/view"
 PUT_URL = API_ENDPOINT + "/put"
+REGISTER_URL = API_ENDPOINT + "/register"
+LOGIN_URL = API_ENDPOINT + "/login"
+SHARE_URL = API_ENDPOINT + "/share"
 
 def main():
     # Dummy code to provide a sample of the expected output
@@ -21,47 +24,38 @@ def main():
     == == == == == == == == == == == == == == == == == == == == == == == == == == ==""")
     
     # User login status
-    login = False
+    isLogin = False
     username = ""
-
+    isAlive = True
+    
     # Login loop
-    while (1):
+    while (isAlive):
         command = input(">>")
         if(len(command.strip()) == 0):
             continue
         cmd_list = command.strip().split()
-        if cmd_list[0] == "quit":
-            break
-        elif cmd_list[0] == "newuser":
-            if(len(cmd_list) != 4):
-                print("ERROR: Invalid command")
-            elif(cmd_list[2] != cmd_list[3]):
-                print("ERROR: Passwords do not match")
-            else:
-                # TODO Handle create user
-
-                print("OK")
-        elif cmd_list[0] == "login":
-            if(len(cmd_list) != 3):
-                print("ERROR: Invalid command")
-            else:
-                # TODO Handle login and authentication
-
-                username = cmd_list[1]
-                login = True
-                print("OK")
+        if(not isLogin):
+            if cmd_list[0] == "quit":
                 break
+            elif cmd_list[0] == "newuser":
+                if(len(cmd_list) != 4):
+                    print("ERROR: Invalid command")
+                elif(cmd_list[2] != cmd_list[3]):
+                    print("ERROR: Passwords do not match")
+                else:
+                    # TODO Handle create user
+                    register(cmd_list[1], cmd_list[2])
+            elif cmd_list[0] == "login":
+                if(len(cmd_list) != 3):
+                    print("ERROR: Invalid command")
+                else:
+                    isLogin = login(cmd_list[1], cmd_list[2])
+                    if(isLogin):
+                        username = cmd_list[1]
+            else:
+                print("Please login first")
         else:
-            print("Please login first")
-
-
-    # Command loop
-    if(login):
-        while (1):
-            command = input(">>")
-            if(len(command.strip()) == 0):
-                continue
-            cmd_list = command.strip().split()
+            # Command loop
             if cmd_list[0] == "quit":
                 break
             elif cmd_list[0] == "view":
@@ -73,11 +67,21 @@ def main():
                     fileName = cmd_list[1].strip()
                     put(fileName, username)
             elif cmd_list[0] == "get":
-                if len(cmd_list) != 2:
+                if len(cmd_list) != 3:
                     print("ERROR: Invalid command")
                 else:
                     fileName = cmd_list[1].strip()
-                    get(fileName, username)
+                    get(fileName, cmd_list[2])
+            elif cmd_list[0] == "share":
+                if len(cmd_list) != 3:
+                    print("ERROR: Invalid command")
+                else:
+                    fileName = cmd_list[1].strip()
+                    share(fileName, username, cmd_list[2])
+            elif cmd_list[0] == "logout":
+                isLogin = False
+                username = ""
+                print("OK")
             else:
                 print("ERROR: Invalid command")
     print("== == == == == == == == == == == == Bye! == == == == == == == == == == == == ==")
@@ -172,9 +176,10 @@ def get(fileName, username):
     response = requests.get(GET_URL, data=raw_data, headers=headers)
     body = json.loads(response.text)
     # Catch error
-    if(body["result"] == "Unable to get file data"):
+
+    if(response.status_code != 200):
         print(body["result"])
-        return
+        return    
 
     with open(fileName, "wb") as file:
         file.write(base64.b64decode(body["result"]))
@@ -182,6 +187,95 @@ def get(fileName, username):
     # Handle CLI
     print("OK")
 
+def register(username,password):
+    """Create new user
+
+    param: username: username of user
+    param: password: password of user
+
+    return: None
+    """
+
+    # Handle sent request
+    headers = {"content-type": "text/plain"}
+    raw_data = json.dumps(
+        {
+        "username": username,
+        "password": password
+        }
+    )
+
+    # Handle response
+    
+    response = requests.post(REGISTER_URL, data=raw_data, headers=headers)
+    body = json.loads(response.text)
+
+    # Handle CLI
+    if(body["result"] == "OK"):
+        print("OK")
+        return True
+    else:
+        print(body["result"])
+        return False
+
+def login(username,password):
+    """Login to server
+
+    param: username: username of user
+    param: password: password of user
+
+    return: None
+    """
+
+    # Handle sent request
+    headers = {"content-type": "text/plain"}
+    raw_data = json.dumps(
+        {
+        "username": username,
+        "password": password
+        }
+    )
+
+    # Handle response
+    response = requests.get(LOGIN_URL, data=raw_data, headers=headers)
+    body = json.loads(response.text)
+
+    # Handle CLI
+    if(body["result"] == "OK"):
+        print("OK")
+        return True
+    else:
+        print(body["result"])
+        return False
+
+def share(fileName , sender_username, receiver_username):
+    """Share file with another user
+
+    param: fileName: name of file to share
+    param: username: username of user
+
+    return: None
+    """
+
+    # Handle sent request
+    headers = {"content-type": "text/plain"}
+    raw_data = json.dumps(
+        {
+        "fileName": fileName,
+        "sender_username": sender_username,
+        "receiver_username": receiver_username
+        }
+    )
+
+    # Handle response
+    response = requests.post(SHARE_URL, data=raw_data, headers=headers)
+    body = json.loads(response.text)
+    
+    # Handle CLI
+    if(body["result"] == "OK"):
+        print("OK")
+    else:
+        print(body["result"])
 
 #===============================================================================
 

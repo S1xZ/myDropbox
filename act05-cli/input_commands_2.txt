@@ -1,0 +1,4 @@
+login another_user password
+view
+get sample.txt john
+quit
